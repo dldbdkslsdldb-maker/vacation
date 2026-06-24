@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026년 여름휴가 일정</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #eef0f5;
+  --card: #ffffff;
+  --border: #e2e6f0;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --track: #f1f3f9;
+  --weekend-bg: rgba(79,70,229,0.04);
+  --today-col: rgba(245,158,11,0.09);
+  --shadow-card: 0 1px 3px rgba(0,0,0,0.05), 0 8px 24px rgba(0,0,0,0.06);
+  --shadow-pop: 0 20px 60px rgba(0,0,0,0.14), 0 2px 8px rgba(0,0,0,0.07);
+  --accent: #6366f1;
+  --row-h: 36px;
+  --row-gap: 5px;
+}
+
+body {
+  font-family: 'Apple SD Gothic Neo','Pretendard','Segoe UI',-apple-system,sans-serif;
+  background: var(--bg);
+  min-height: 100vh;
+  padding: 40px 24px 72px;
+  -webkit-font-smoothing: antialiased;
+}
+
+.container { max-width: 800px; margin: 0 auto; }
+
+/* ════════════════════════════════
+   HEADER
+════════════════════════════════ */
+.page-header {
+  background: #0f172a;
+  border-radius: 20px;
+  padding: 40px 44px 36px;
+  margin-bottom: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 배경 연도 워터마크 */
+.page-header::before {
+  content: '2026';
+  position: absolute;
+  right: -8px; top: 50%;
+  transform: translateY(-50%);
+  font-size: 10rem; font-weight: 900;
+  color: rgba(255,255,255,0.035);
+  letter-spacing: -8px;
+  line-height: 1;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* 좌측 액센트 라인 */
+.page-header::after {
+  content: '';
+  position: absolute;
+  left: 0; top: 32px; bottom: 32px;
+  width: 3px;
+  background: linear-gradient(to bottom, #818cf8, #34d399);
+  border-radius: 0 2px 2px 0;
+}
+
+.header-eyebrow {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #6ee7b7;
+  margin-bottom: 10px;
+  position: relative;
+}
+
+.page-header h1 {
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: #f8fafc;
+  letter-spacing: -1.2px;
+  line-height: 1.1;
+  margin-bottom: 18px;
+  position: relative;
+}
+
+.header-meta {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 16px;
+  position: relative;
+}
+
+.header-date {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: rgba(255,255,255,0.4);
+  letter-spacing: 0.3px;
+}
+
+.header-divider {
+  width: 1px; height: 14px;
+  background: rgba(255,255,255,0.12);
+}
+
+.header-count {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.35);
+}
+
+/* ════════════════════════════════
+   CARD
+════════════════════════════════ */
+.card {
+  background: var(--card);
+  border-radius: 16px;
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--border);
+  padding: 24px 22px 26px;
+}
+
+/* ── Week separator ── */
+.week-sep {
+  height: 1px;
+  background: var(--border);
+  margin: 14px 0;
+}
+
+/* ── Month band ── */
+.month-band {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+  margin-bottom: 3px;
+}
+.mb-cell {
+  height: 24px;
+  border-radius: 6px 6px 0 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .87rem; font-weight: 800;
+  letter-spacing: .4px;
+}
+.mb-cell.mb-july { background: #e0f2fe; color: #075985; }
+.mb-cell.mb-aug  { background: #ede9fe; color: #5b21b6; }
+
+/* 8월 2+3주차 통합 full-width 밴드 */
+.month-band-full {
+  height: 24px;
+  border-radius: 6px 6px 0 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .87rem; font-weight: 800;
+  letter-spacing: .4px;
+  margin-bottom: 3px;
+}
+.month-band-full.mb-aug { background: #ede9fe; color: #5b21b6; }
+
+/* 2·3주차 사이 구분선 */
+.week-sep-inner {
+  height: 1px;
+  background: #ddd6fe;
+  margin: 10px 0;
+}
+
+/* ── Date header ── */
+.date-header {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+  margin-bottom: 5px;
+}
+
+.dh-cell {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 5px 2px 5px;
+  border-radius: 0 0 0 0;
+  position: relative;
+}
+.dh-cell.july-col  { background: rgba(224,242,254,0.7); }
+.dh-cell.aug-col   { background: rgba(237,233,254,0.45); }
+.dh-cell.weekend.july-col { background: rgba(186,230,253,0.6); }
+.dh-cell.weekend.aug-col  { background: rgba(221,214,254,0.5); }
+.dh-cell.today-cell { background: var(--today-col) !important; }
+
+.dh-month {
+  font-size: .52rem; font-weight: 700;
+  color: var(--text-muted); letter-spacing: .5px;
+  margin-bottom: 2px; line-height: 1;
+  text-transform: uppercase;
+}
+.dh-dow {
+  font-size: .6rem; font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 3px; line-height: 1;
+}
+.dh-day {
+  font-size: .8rem; font-weight: 800;
+  color: var(--text-secondary); line-height: 1;
+}
+.dh-cell.sun .dh-dow, .dh-cell.sun .dh-day { color: #dc2626; }
+.dh-cell.sat .dh-dow, .dh-cell.sat .dh-day { color: #2563eb; }
+.dh-cell.today-cell .dh-day { color: #d97706; }
+
+/* month boundary vertical line in col-bg */
+.col-bg.month-start {
+  border-left: 2px solid #a78bfa;
+}
+
+/* 공휴일 */
+.dh-cell.holiday-cell { background: rgba(220,38,38,0.06); }
+.dh-cell.holiday-cell .dh-dow,
+.dh-cell.holiday-cell .dh-day { color: #dc2626; }
+.dh-holiday {
+  font-size: .5rem; font-weight: 800;
+  color: #dc2626; letter-spacing: .1px;
+  margin-top: 2px; line-height: 1;
+  white-space: nowrap;
+}
+.col-bg.holiday-col { background: rgba(220,38,38,0.04); }
+
+/* ── Week body ── */
+.week-body { position: relative; }
+
+.col-bg-grid {
+  position: absolute; inset: 0;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+  pointer-events: none; z-index: 0;
+  border-radius: 0 0 8px 8px;
+  overflow: hidden;
+}
+.col-bg { background: var(--track); height: 100%; }
+.col-bg.weekend { background: #ebebf5; }
+.col-bg.today-col { background: #fef9ec; }
+
+/* ── Fun overlays ── */
+.fun-overlay {
+  position: absolute;
+  top: 0; bottom: 0;
+  z-index: 1;
+  pointer-events: none;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.fun-overlay .fo-bg {
+  position: absolute; inset: 0;
+  display: flex; align-items: center;
+  justify-content: space-evenly;
+  padding: 0 4px;
+  font-size: 4.75rem;
+  opacity: 0.13;
+  user-select: none;
+  letter-spacing: -2px;
+}
+.fun-overlay .fo-msg {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 6px;
+}
+.fun-overlay .fo-text {
+  font-size: 1.575rem; font-weight: 900;
+  letter-spacing: -.4px; text-align: center;
+  line-height: 1.3;
+  padding: 8px 16px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.6);
+  backdrop-filter: blur(3px);
+  white-space: nowrap;
+}
+.fun-overlay .fo-emo {
+  font-size: 2.5rem;
+  line-height: 1;
+}
+
+/* ── Person rows ── */
+.person-rows {
+  position: relative; z-index: 1;
+  display: flex; flex-direction: column;
+  gap: var(--row-gap);
+  padding: 5px 0;
+}
+.person-row {
+  position: relative;
+  height: var(--row-h);
+}
+
+/* ── Vacation bar ── */
+.vbar-wrap {
+  position: absolute;
+  top: 4px; bottom: 4px;
+  z-index: 2;
+  pointer-events: none;
+}
+.vbar {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .69rem; font-weight: 800;
+  color: rgba(255,255,255,0.95);
+  letter-spacing: .1px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  padding: 0 10px;
+  cursor: pointer;
+  pointer-events: all;
+  transition: filter .15s, box-shadow .15s, transform .12s;
+}
+.vbar:hover {
+  filter: brightness(1.1);
+  transform: scaleY(1.06);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.22) !important;
+}
+.vbar.selected {
+  outline: 2px solid rgba(255,255,255,0.8);
+  outline-offset: 2px;
+  filter: brightness(1.08);
+  transform: scaleY(1.09);
+}
+
+/* ════════════════════════════════
+   EDIT POPOVER
+════════════════════════════════ */
+.pop {
+  display: none; position: fixed; z-index: 999;
+  background: var(--card);
+  border-radius: 14px;
+  box-shadow: var(--shadow-pop);
+  border: 1px solid var(--border);
+  padding: 20px 20px 16px;
+  width: 256px;
+  animation: popIn .13s cubic-bezier(.34,1.56,.64,1);
+}
+.pop.open { display: block; }
+@keyframes popIn {
+  from { opacity:0; transform:scale(.92) translateY(8px); }
+  to   { opacity:1; transform:scale(1)   translateY(0);   }
+}
+.pop-head {
+  display: flex; align-items: center; gap: 9px;
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.pop-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.pop-name { font-size: .82rem; font-weight: 800; color: var(--text-primary); flex: 1; }
+.pop-x {
+  width: 22px; height: 22px; border-radius: 5px; border: none;
+  background: var(--track); color: var(--text-muted);
+  font-size: .78rem; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .12s;
+}
+.pop-x:hover { background: var(--border); color: var(--text-primary); }
+
+.pop-fields { display: flex; flex-direction: column; gap: 10px; }
+.pop-field label {
+  font-size: .62rem; font-weight: 800;
+  color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: .7px;
+  display: block; margin-bottom: 4px;
+}
+.pop-field input[type=date] {
+  width: 100%;
+  border: 1.5px solid var(--border); border-radius: 8px;
+  padding: 7px 10px; font-size: .8rem;
+  color: var(--text-primary); background: #fafbfe;
+  outline: none; cursor: pointer;
+  transition: border-color .15s, background .15s;
+}
+.pop-field input[type=date]:focus {
+  border-color: var(--accent); background: #fff;
+}
+.pop-note {
+  margin-top: 10px; text-align: center;
+  font-size: .66rem; color: var(--text-muted);
+}
+
+/* ── Tooltip ── */
+.tip {
+  display: none; position: fixed; z-index: 1000;
+  background: rgba(15,23,42,.9); color: #f8fafc;
+  border-radius: 7px; padding: 5px 12px;
+  font-size: .7rem; font-weight: 600;
+  pointer-events: none; white-space: nowrap;
+  box-shadow: 0 4px 20px rgba(0,0,0,.18);
+  letter-spacing: .1px;
+}
+.tip.show { display: block; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- ── Header ── -->
+  <div class="page-header">
+    <div class="header-eyebrow">Summer Vacation Schedule</div>
+    <h1>2026년 여름휴가 일정</h1>
+    <div class="header-meta">
+      <span class="header-date">7월 26일 — 8월 15일</span>
+    </div>
+  </div>
+
+  <!-- ── Calendar card ── -->
+  <div class="card" id="calCard"></div>
+</div>
+
+<!-- Popover -->
+<div class="pop" id="pop">
+  <div class="pop-head">
+    <div class="pop-dot" id="popDot"></div>
+    <div class="pop-name" id="popName"></div>
+    <button class="pop-x" id="popX">✕</button>
+  </div>
+  <div class="pop-fields">
+    <div class="pop-field">
+      <label>시작일</label>
+      <input type="date" id="popS" min="2026-07-26" max="2026-08-15">
+    </div>
+    <div class="pop-field">
+      <label>종료일</label>
+      <input type="date" id="popE" min="2026-07-26" max="2026-08-15">
+    </div>
+  </div>
+  <div class="pop-note">변경 즉시 반영됩니다</div>
+</div>
+
+<div class="tip" id="tip"></div>
+
+<script>
+const PEOPLE = [
+  { name: '김성주', label: '성주 휴가', color: '#059669', start: '2026-08-01', end: '2026-08-09' },
+  { name: '김영재', label: '영재 휴가', color: '#d97706', start: '2026-08-01', end: '2026-08-09' },
+  { name: '배한재', label: '한재 휴가', color: '#ec4899', start: '2026-08-01', end: '2026-08-05' },
+  { name: '유창현', label: '창현 휴가', color: '#2563eb', start: '2026-08-01', end: '2026-08-05' },
+  { name: '주성기', label: '성기 휴가', color: '#7c3aed', start: '2026-08-01', end: '2026-08-05' },
+];
+
+const HOLIDAYS = {
+  '2026-08-15': { name: '광복절', sub: '대체휴일 8/17' },
+};
+
+const WEEKS = [
+  range(new Date(2026,6,26), 7),
+  range(new Date(2026,7,2),  7),
+  range(new Date(2026,7,9),  7),
+];
+const DOW = ['일','월','화','수','목','금','토'];
+
+function range(from, n) {
+  return Array.from({length:n}, (_,i) => { const d=new Date(from); d.setDate(d.getDate()+i); return d; });
+}
+function parseDate(s) { const [y,m,d]=s.split('-').map(Number); return new Date(y,m-1,d); }
+function fmtDate(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+function sameDay(a,b) { return a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate(); }
+function daysBetween(s,e) { return Math.round((parseDate(e)-parseDate(s))/86400000)+1; }
+
+let selIdx = null;
+const ROW_H=36, ROW_GAP=5, ROW_PAD=5;
+
+function barInWeek(person, week) {
+  const ps=parseDate(person.start), pe=parseDate(person.end);
+  const ws=week[0], we=week[6];
+  if (pe<ws||ps>we) return null;
+  const cStart = ps<=ws ? 0 : week.findIndex(d=>d>=ps);
+  const cEnd   = pe>=we ? 6 : week.findLastIndex(d=>d<=pe);
+  return { cStart, cEnd,
+    isActualStart: ps>=ws && ps<=we,
+    isActualEnd:   pe>=ws && pe<=we };
+}
+
+function render() {
+  const card = document.getElementById('calCard');
+  card.innerHTML = '';
+  const today = new Date(); today.setHours(0,0,0,0);
+  const bodyH = ROW_PAD*2 + PEOPLE.length*ROW_H + (PEOPLE.length-1)*ROW_GAP;
+
+  WEEKS.forEach((week, wi) => {
+    // 주차 구분선: 1→2주차는 기존 sep, 2→3주차는 내부 얇은 선
+    if (wi === 1) { const sep=document.createElement('div'); sep.className='week-sep'; card.appendChild(sep); }
+    if (wi === 2) { const sep=document.createElement('div'); sep.className='week-sep-inner'; card.appendChild(sep); }
+
+    const block = document.createElement('div');
+    block.className = 'week-block';
+
+    // Month band
+    if (wi === 0) {
+      // 7월(6칸 통합) + 8월(1칸)
+      const band = document.createElement('div');
+      band.className = 'month-band';
+
+      const julyCols = week.filter(d => d.getMonth() === 6).length; // 6
+      const augCols  = week.filter(d => d.getMonth() === 7).length; // 1
+
+      const julyCell = document.createElement('div');
+      julyCell.className = 'mb-cell mb-july';
+      julyCell.style.gridColumn = `span ${julyCols}`;
+      julyCell.textContent = '7월';
+      band.appendChild(julyCell);
+
+      if (augCols > 0) {
+        const augCell = document.createElement('div');
+        augCell.className = 'mb-cell mb-aug';
+        augCell.style.gridColumn = `span ${augCols}`;
+        augCell.textContent = '8월';
+        band.appendChild(augCell);
+      }
+      block.appendChild(band);
+
+    } else if (wi === 1) {
+      // 8월 2·3주차 통합 full-width 밴드 (wi===1에만)
+      const band = document.createElement('div');
+      band.className = 'month-band-full mb-aug';
+      band.textContent = '8월';
+      block.appendChild(band);
+    }
+    // wi===2: 밴드 없음 (8월 밴드가 위에서 이미 표시됨)
+
+    // Date header
+    const header = document.createElement('div');
+    header.className = 'date-header';
+    week.forEach(date => {
+      const dow = date.getDay();
+      const hKey = fmtDate(date);
+      const holiday = HOLIDAYS[hKey];
+      const isJuly = date.getMonth() === 6;
+      const cell = document.createElement('div');
+      cell.className = 'dh-cell';
+      if (dow===0) cell.classList.add('sun');
+      if (dow===6) cell.classList.add('sat');
+      if (dow===0||dow===6) cell.classList.add('weekend');
+      cell.classList.add(isJuly ? 'july-col' : 'aug-col');
+      if (sameDay(date,today)) cell.classList.add('today-cell');
+      if (holiday) { cell.classList.add('holiday-cell'); cell.title=holiday.sub||holiday.name; }
+      cell.innerHTML = `
+        <div class="dh-dow">${DOW[dow]}</div>
+        <div class="dh-day">${date.getDate()}</div>
+        ${holiday?`<div class="dh-holiday">${holiday.name}</div>`:''}`;
+      header.appendChild(cell);
+    });
+    block.appendChild(header);
+
+    // Week body
+    const body = document.createElement('div');
+    body.className = 'week-body';
+    body.style.height = bodyH+'px';
+
+    // Column backgrounds
+    const colGrid = document.createElement('div');
+    colGrid.className = 'col-bg-grid';
+    week.forEach((date, ci) => {
+      const dow=date.getDay();
+      const isJuly=date.getMonth()===6;
+      const col=document.createElement('div');
+      col.className='col-bg';
+      if (dow===0||dow===6) col.classList.add('weekend');
+      if (sameDay(date,today)) col.classList.add('today-col');
+      if (HOLIDAYS[fmtDate(date)]) col.classList.add('holiday-col');
+      // 월 구분 배경
+      if (isJuly) col.style.background = (dow===0||dow===6) ? '#bae6fd66' : '#e0f2fe55';
+      else        col.style.background = (dow===0||dow===6) ? '#ddd6fe55' : '#ede9fe44';
+      // 8월 시작 경계선
+      if (date.getDate()===1 && !isJuly) col.classList.add('month-start');
+      colGrid.appendChild(col);
+    });
+    body.appendChild(colGrid);
+
+    // Fun overlays
+    const overlayDefs = [
+      { wi: 0, cStart: 0, cEnd: 5, bg: 'rgba(186,230,253,0.55)', color: '#0c4a6e',
+        bgEmoji: '⛓️💼⛏️🧱💼⛓️',
+        text: '일해라 노예들아!', emo: '😤⛓️' },
+      { wi: 2, cStart: 1, cEnd: 6, bg: 'rgba(199,210,254,0.55)', color: '#312e81',
+        bgEmoji: '😭⛓️💀😩⛓️😭',
+        text: '다시 일하자.. 노예들아', emo: '😭⛏️' },
+    ];
+    overlayDefs.filter(o => o.wi === wi).forEach(o => {
+      const n=7, g=3;
+      const leftCalc  = `calc(${o.cStart}*(100% - ${(n-1)*g}px)/${n} + ${o.cStart*g}px)`;
+      const widthCalc = `calc(${o.cEnd-o.cStart+1}*(100% - ${(n-1)*g}px)/${n} + ${(o.cEnd-o.cStart)*g}px)`;
+
+      const ov = document.createElement('div');
+      ov.className = 'fun-overlay';
+      ov.style.cssText = `left:${leftCalc}; width:${widthCalc}; background:${o.bg};`;
+
+      // big emoji watermark bg
+      const bgDiv = document.createElement('div');
+      bgDiv.className = 'fo-bg';
+      bgDiv.textContent = o.bgEmoji;
+      ov.appendChild(bgDiv);
+
+      // message
+      const msg = document.createElement('div');
+      msg.className = 'fo-msg';
+      msg.innerHTML = `<div class="fo-emo">${o.emo}</div><div class="fo-text" style="color:${o.color}">${o.text}</div>`;
+      ov.appendChild(msg);
+
+      body.appendChild(ov);
+    });
+
+    // Person rows
+    const rows = document.createElement('div');
+    rows.className = 'person-rows';
+
+    PEOPLE.forEach((person, pi) => {
+      const info = barInWeek(person, week);
+      const row = document.createElement('div');
+      row.className = 'person-row';
+
+      if (info) {
+        const {cStart,cEnd,isActualStart,isActualEnd} = info;
+        const n=7, g=3;
+        const leftCalc  = `calc(${cStart}*(100% - ${(n-1)*g}px)/${n} + ${cStart*g}px)`;
+        const widthCalc = `calc(${cEnd-cStart+1}*(100% - ${(n-1)*g}px)/${n} + ${(cEnd-cStart)*g}px)`;
+
+        const wrap = document.createElement('div');
+        wrap.className = 'vbar-wrap';
+        wrap.style.left=leftCalc; wrap.style.width=widthCalc;
+
+        const rL=isActualStart?'7px':'0', rR=isActualEnd?'7px':'0';
+
+        const bar = document.createElement('div');
+        bar.className = 'vbar'+(selIdx===pi?' selected':'');
+        bar.style.cssText=`
+          background:${person.color};
+          border-radius:${rL} ${rR} ${rR} ${rL};
+          box-shadow:0 3px 12px ${person.color}50;`;
+        bar.textContent = person.label;
+
+        bar.onclick = (e) => { e.stopPropagation(); openPop(pi,e); };
+        bar.onmouseenter = (e) => showTip(`${person.start.slice(5).replace('-','/')} ~ ${person.end.slice(5).replace('-','/')}  (${daysBetween(person.start,person.end)}일)`,e);
+        bar.onmousemove = moveTip;
+        bar.onmouseleave = hideTip;
+
+        wrap.appendChild(bar);
+        row.appendChild(wrap);
+      }
+      rows.appendChild(row);
+    });
+
+    body.appendChild(rows);
+    block.appendChild(body);
+    card.appendChild(block);
+  });
+}
+
+// Popover
+const pop=document.getElementById('pop'),popS=document.getElementById('popS'),popE=document.getElementById('popE');
+function openPop(pi,e){
+  if(selIdx===pi&&pop.classList.contains('open')){closePop();return;}
+  selIdx=pi;
+  const p=PEOPLE[pi];
+  document.getElementById('popDot').style.background=p.color;
+  document.getElementById('popName').textContent=p.name;
+  popS.value=p.start; popE.value=p.end;
+  const r=e.target.getBoundingClientRect();
+  let top=r.bottom+10+scrollY, left=r.left;
+  if(left+266>innerWidth-12) left=innerWidth-270;
+  if(top+210>scrollY+innerHeight-12) top=r.top+scrollY-210;
+  pop.style.top=top+'px'; pop.style.left=left+'px';
+  pop.classList.add('open'); render();
+}
+function closePop(){ pop.classList.remove('open'); selIdx=null; render(); }
+document.getElementById('popX').onclick=closePop;
+document.addEventListener('mousedown',e=>{ if(!pop.contains(e.target)&&!e.target.closest('.vbar')) closePop(); });
+popS.oninput=popE.oninput=()=>{
+  if(selIdx===null) return;
+  const s=popS.value,e=popE.value;
+  if(!s||!e||s>e) return;
+  PEOPLE[selIdx].start=s; PEOPLE[selIdx].end=e; render();
+};
+
+// Tooltip
+const tipEl=document.getElementById('tip');
+function showTip(msg,e){ tipEl.textContent=msg; tipEl.classList.add('show'); moveTip(e); }
+function moveTip(e){ tipEl.style.left=(e.clientX+14)+'px'; tipEl.style.top=(e.clientY-34)+'px'; }
+function hideTip(){ tipEl.classList.remove('show'); }
+
+render();
+</script>
+</body>
+</html>
