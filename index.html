@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026년 여름휴가 일정</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #f2f4f9;
+  --card: #ffffff;
+  --border: #e4e9f2;
+  --text-primary: #1a2035;
+  --text-secondary: #5a6580;
+  --text-muted: #9aa3bc;
+  --track: #f0f2f8;
+  --weekend-bg: rgba(99,102,241,0.05);
+  --today-bg: rgba(245,158,11,0.10);
+  --shadow: 0 4px 24px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04);
+  --shadow-pop: 0 16px 48px rgba(0,0,0,0.14), 0 2px 8px rgba(0,0,0,0.06);
+  --row-h: 34px;
+  --row-gap: 4px;
+}
+
+body {
+  font-family: 'Apple SD Gothic Neo','Pretendard','Segoe UI',-apple-system,sans-serif;
+  background: var(--bg);
+  min-height: 100vh;
+  padding: 36px 20px 60px;
+}
+
+.container { max-width: 780px; margin: 0 auto; }
+
+.page-header { text-align: center; margin-bottom: 26px; }
+.page-header h1 {
+  font-size: 1.45rem; font-weight: 800;
+  color: var(--text-primary); letter-spacing: -0.6px; margin-bottom: 5px;
+}
+.page-header p { font-size: 0.75rem; color: var(--text-muted); }
+
+.card {
+  background: var(--card);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  padding: 22px 20px 24px;
+}
+
+/* ── Week block ── */
+.week-block { margin-bottom: 0; }
+
+.week-sep {
+  height: 1px; background: var(--border);
+  margin: 12px 0;
+}
+
+/* Date header — 7 equal columns */
+.date-header {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+  margin-bottom: 4px;
+}
+.dh-cell {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 5px 2px 5px; border-radius: 7px 7px 0 0;
+}
+.dh-cell.weekend { background: var(--weekend-bg); }
+.dh-cell.today-cell { background: var(--today-bg); }
+.dh-month { font-size:.55rem; font-weight:700; color:var(--text-muted); letter-spacing:.4px; margin-bottom:2px; line-height:1; }
+.dh-dow   { font-size:.62rem; font-weight:700; color:var(--text-muted); margin-bottom:2px; line-height:1; }
+.dh-day   { font-size:.78rem; font-weight:800; color:var(--text-secondary); line-height:1; }
+.dh-cell.sun .dh-dow, .dh-cell.sun .dh-day { color:#dc2626; }
+.dh-cell.sat .dh-dow, .dh-cell.sat .dh-day { color:#2563eb; }
+.dh-cell.today-cell .dh-day { color:#d97706; }
+.dh-cell.holiday-cell { background: rgba(220,38,38,0.07); }
+.dh-cell.holiday-cell .dh-dow,
+.dh-cell.holiday-cell .dh-day { color: #dc2626; }
+.dh-holiday {
+  font-size: 0.52rem; font-weight: 800;
+  color: #dc2626; letter-spacing: 0.2px;
+  margin-top: 2px; line-height: 1;
+  white-space: nowrap;
+}
+.col-bg.holiday-col { background: rgba(220,38,38,0.05); }
+
+/* ── Body: column bg + rows overlay ── */
+.week-body {
+  position: relative;
+}
+
+/* Shared column backgrounds — 7 columns, full height of all rows */
+.col-bg-grid {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+  pointer-events: none;
+  z-index: 0;
+  border-radius: 0 0 8px 8px;
+  overflow: hidden;
+}
+.col-bg {
+  background: var(--track);
+  height: 100%;
+}
+.col-bg.weekend { background: #ebedf8; }
+.col-bg.today-col { background: #fef3c7; }
+
+/* Person rows stacked, transparent bg */
+.person-rows {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--row-gap);
+  padding: 4px 0;
+}
+
+.person-row {
+  position: relative;
+  height: var(--row-h);
+  /* no background — column bg shows through */
+}
+
+/* Bar */
+.vbar-wrap {
+  position: absolute;
+  top: 3px; bottom: 3px;
+  z-index: 2;
+  pointer-events: none;
+}
+.vbar {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.7rem; font-weight: 800;
+  color: rgba(255,255,255,0.96);
+  letter-spacing: -0.1px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  padding: 0 8px;
+  cursor: pointer;
+  pointer-events: all;
+  transition: filter 0.15s, transform 0.12s;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.18);
+}
+.vbar:hover { filter: brightness(1.08); transform: scaleY(1.07); }
+.vbar.selected {
+  outline: 2.5px solid rgba(255,255,255,0.85);
+  outline-offset: 1px;
+  filter: brightness(1.06);
+  transform: scaleY(1.1);
+}
+
+/* ── Edit Popover ── */
+.pop {
+  display:none; position:fixed; z-index:999;
+  background:var(--card); border-radius:14px;
+  box-shadow:var(--shadow-pop); border:1px solid var(--border);
+  padding:18px 18px 14px; width:260px;
+  animation:popIn .14s cubic-bezier(.34,1.56,.64,1);
+}
+.pop.open { display:block; }
+@keyframes popIn {
+  from { opacity:0; transform:scale(.9) translateY(6px); }
+  to   { opacity:1; transform:scale(1) translateY(0); }
+}
+.pop-head { display:flex; align-items:center; gap:8px; margin-bottom:13px; }
+.pop-dot  { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+.pop-name { font-size:.83rem; font-weight:800; color:var(--text-primary); flex:1; }
+.pop-x {
+  width:22px; height:22px; border-radius:5px; border:none;
+  background:var(--track); color:var(--text-muted);
+  font-size:.8rem; cursor:pointer; display:flex; align-items:center; justify-content:center;
+  transition:background .12s;
+}
+.pop-x:hover { background:var(--border); color:var(--text-primary); }
+.pop-fields { display:flex; flex-direction:column; gap:9px; }
+.pop-field label {
+  font-size:.64rem; font-weight:800; color:var(--text-muted);
+  text-transform:uppercase; letter-spacing:.6px; display:block; margin-bottom:4px;
+}
+.pop-field input[type=date] {
+  width:100%; border:1.5px solid var(--border); border-radius:7px;
+  padding:7px 10px; font-size:.8rem; color:var(--text-primary);
+  background:#fafbfe; outline:none; cursor:pointer; transition:border-color .15s;
+}
+.pop-field input[type=date]:focus { border-color:#6366f1; background:#fff; }
+.pop-note { margin-top:10px; text-align:center; font-size:.68rem; color:var(--text-muted); }
+
+/* ── Tooltip ── */
+.tip {
+  display:none; position:fixed; z-index:1000;
+  background:rgba(26,32,53,.92); color:#fff;
+  border-radius:7px; padding:5px 11px;
+  font-size:.71rem; font-weight:700;
+  pointer-events:none; white-space:nowrap;
+  box-shadow:0 4px 16px rgba(0,0,0,.18);
+}
+.tip.show { display:block; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="page-header">
+    <h1>2026년 여름휴가 일정</h1>
+    <p>7월 26일 — 8월 15일 &nbsp;·&nbsp; 바를 클릭해 일정을 수정할 수 있습니다</p>
+  </div>
+  <div class="card" id="calCard"></div>
+</div>
+
+<div class="pop" id="pop">
+  <div class="pop-head">
+    <div class="pop-dot" id="popDot"></div>
+    <div class="pop-name" id="popName"></div>
+    <button class="pop-x" id="popX">✕</button>
+  </div>
+  <div class="pop-fields">
+    <div class="pop-field">
+      <label>시작일</label>
+      <input type="date" id="popS" min="2026-07-26" max="2026-08-15">
+    </div>
+    <div class="pop-field">
+      <label>종료일</label>
+      <input type="date" id="popE" min="2026-07-26" max="2026-08-15">
+    </div>
+  </div>
+  <div class="pop-note">변경 즉시 반영됩니다</div>
+</div>
+
+<div class="tip" id="tip"></div>
+
+<script>
+const PEOPLE = [
+  { name: '김성주', label: '성주 휴가', color: '#10b981', start: '2026-08-01', end: '2026-08-09' },
+  { name: '김영재', label: '영재 휴가', color: '#f59e0b', start: '2026-08-01', end: '2026-08-09' },
+  { name: '배한재', label: '한재 휴가', color: '#ef4444', start: '2026-08-01', end: '2026-08-05' },
+  { name: '유창현', label: '창현 휴가', color: '#3b82f6', start: '2026-08-01', end: '2026-08-05' },
+  { name: '주성기', label: '성기 휴가', color: '#8b5cf6', start: '2026-08-01', end: '2026-08-05' },
+];
+
+// 2026년 공휴일 (7/26~8/15 범위)
+const HOLIDAYS = {
+  '2026-08-15': { name: '광복절', sub: '대체휴일 8/17' },
+};
+
+const WEEKS = [
+  range(new Date(2026,6,26), 7),
+  range(new Date(2026,7,2),  7),
+  range(new Date(2026,7,9),  7),
+];
+const DOW = ['일','월','화','수','목','금','토'];
+
+function range(from, n) {
+  return Array.from({length:n}, (_,i) => { const d=new Date(from); d.setDate(d.getDate()+i); return d; });
+}
+function parseDate(s) { const [y,m,d]=s.split('-').map(Number); return new Date(y,m-1,d); }
+function fmtDate(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+function sameDay(a,b) { return a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate(); }
+function daysBetween(s,e) { return Math.round((parseDate(e)-parseDate(s))/86400000)+1; }
+
+let selIdx = null;
+const ROW_H = 34, ROW_GAP = 4, ROW_PAD = 4; // px, matches CSS
+
+function barInWeek(person, week) {
+  const ps = parseDate(person.start), pe = parseDate(person.end);
+  const ws = week[0], we = week[6];
+  if (pe < ws || ps > we) return null;
+  const cStart = ps <= ws ? 0 : week.findIndex(d => d >= ps);
+  const cEnd   = pe >= we ? 6 : week.findLastIndex(d => d <= pe);
+  return {
+    cStart, cEnd,
+    isActualStart: ps >= ws && ps <= we,
+    isActualEnd:   pe >= ws && pe <= we,
+  };
+}
+
+function render() {
+  const card = document.getElementById('calCard');
+  card.innerHTML = '';
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  // Total body height per week block (used for shared col-bg)
+  const bodyH = ROW_PAD * 2 + PEOPLE.length * ROW_H + (PEOPLE.length - 1) * ROW_GAP;
+
+  WEEKS.forEach((week, wi) => {
+    if (wi > 0) {
+      const sep = document.createElement('div');
+      sep.className = 'week-sep';
+      card.appendChild(sep);
+    }
+
+    const block = document.createElement('div');
+    block.className = 'week-block';
+
+    // ── Date header ──
+    const header = document.createElement('div');
+    header.className = 'date-header';
+    week.forEach(date => {
+      const dow = date.getDay();
+      const cell = document.createElement('div');
+      cell.className = 'dh-cell';
+      if (dow===0) cell.classList.add('sun');
+      if (dow===6) cell.classList.add('sat');
+      if (dow===0||dow===6) cell.classList.add('weekend');
+      if (sameDay(date,today)) cell.classList.add('today-cell');
+      const showMonth = (wi===0 && date===week[0]) || date.getDate()===1;
+      const hKey = fmtDate(date);
+      const holiday = HOLIDAYS[hKey];
+      if (holiday) { cell.classList.add('holiday-cell'); cell.title = holiday.sub || holiday.name; }
+      cell.innerHTML = `
+        <div class="dh-month">${showMonth?(date.getMonth()+1)+'월':''}</div>
+        <div class="dh-dow">${DOW[dow]}</div>
+        <div class="dh-day">${date.getDate()}</div>
+        ${holiday ? `<div class="dh-holiday">${holiday.name}</div>` : ''}`;
+      header.appendChild(cell);
+    });
+    block.appendChild(header);
+
+    // ── Week body ──
+    const body = document.createElement('div');
+    body.className = 'week-body';
+    body.style.height = bodyH + 'px';
+
+    // Shared column backgrounds
+    const colGrid = document.createElement('div');
+    colGrid.className = 'col-bg-grid';
+    week.forEach(date => {
+      const dow = date.getDay();
+      const col = document.createElement('div');
+      col.className = 'col-bg';
+      if (dow===0||dow===6) col.classList.add('weekend');
+      if (sameDay(date,today)) col.classList.add('today-col');
+      if (HOLIDAYS[fmtDate(date)]) col.classList.add('holiday-col');
+      colGrid.appendChild(col);
+    });
+    body.appendChild(colGrid);
+
+    // Person rows (transparent bg)
+    const rows = document.createElement('div');
+    rows.className = 'person-rows';
+
+    PEOPLE.forEach((person, pi) => {
+      const info = barInWeek(person, week);
+      const row = document.createElement('div');
+      row.className = 'person-row';
+
+      if (info) {
+        const { cStart, cEnd, isActualStart, isActualEnd } = info;
+        const n=7, g=3;
+
+        // Calc left/width using same grid math as col-bg-grid
+        // Each col = (100% - 6*3px) / 7, left = cStart cols + cStart gaps
+        const leftCalc  = `calc(${cStart} * (100% - ${(n-1)*g}px) / ${n} + ${cStart*g}px)`;
+        const widthCalc = `calc(${cEnd-cStart+1} * (100% - ${(n-1)*g}px) / ${n} + ${(cEnd-cStart)*g}px)`;
+
+        const wrap = document.createElement('div');
+        wrap.className = 'vbar-wrap';
+        wrap.style.left  = leftCalc;
+        wrap.style.width = widthCalc;
+
+        const rL = isActualStart ? '7px' : '0';
+        const rR = isActualEnd   ? '7px' : '0';
+
+        const bar = document.createElement('div');
+        bar.className = 'vbar' + (selIdx===pi ? ' selected' : '');
+        bar.style.cssText = `
+          background: linear-gradient(135deg, ${person.color}f0, ${person.color}bb);
+          border-radius: ${rL} ${rR} ${rR} ${rL};
+          box-shadow: 0 2px 10px ${person.color}44;
+        `;
+        bar.textContent = person.label;
+
+        bar.onclick = (e) => { e.stopPropagation(); openPop(pi, e); };
+        bar.onmouseenter = (e) => showTip(`${person.start.slice(5).replace('-','/')} ~ ${person.end.slice(5).replace('-','/')}  (${daysBetween(person.start,person.end)}일)`, e);
+        bar.onmousemove = moveTip;
+        bar.onmouseleave = hideTip;
+
+        wrap.appendChild(bar);
+        row.appendChild(wrap);
+      }
+
+      rows.appendChild(row);
+    });
+
+    body.appendChild(rows);
+    block.appendChild(body);
+    card.appendChild(block);
+  });
+}
+
+// ── Popover ──
+const pop = document.getElementById('pop');
+const popS = document.getElementById('popS');
+const popE = document.getElementById('popE');
+
+function openPop(pi, e) {
+  if (selIdx===pi && pop.classList.contains('open')) { closePop(); return; }
+  selIdx = pi;
+  const p = PEOPLE[pi];
+  document.getElementById('popDot').style.background = p.color;
+  document.getElementById('popName').textContent = p.name;
+  popS.value = p.start; popE.value = p.end;
+  const rect = e.target.getBoundingClientRect();
+  let top  = rect.bottom + 10 + window.scrollY;
+  let left = rect.left;
+  if (left+270>window.innerWidth-12) left=window.innerWidth-274;
+  if (top+200>window.scrollY+window.innerHeight-12) top=rect.top+window.scrollY-200;
+  pop.style.top=top+'px'; pop.style.left=left+'px';
+  pop.classList.add('open');
+  render();
+}
+function closePop() {
+  pop.classList.remove('open');
+  selIdx=null; render();
+}
+document.getElementById('popX').onclick = closePop;
+document.addEventListener('mousedown', e => {
+  if (!pop.contains(e.target) && !e.target.closest('.vbar')) closePop();
+});
+popS.oninput = popE.oninput = () => {
+  if (selIdx===null) return;
+  const s=popS.value, e=popE.value;
+  if (!s||!e||s>e) return;
+  PEOPLE[selIdx].start=s; PEOPLE[selIdx].end=e;
+  render();
+};
+
+// ── Tooltip ──
+const tipEl = document.getElementById('tip');
+function showTip(msg,e){ tipEl.textContent=msg; tipEl.classList.add('show'); moveTip(e); }
+function moveTip(e){ tipEl.style.left=(e.clientX+14)+'px'; tipEl.style.top=(e.clientY-34)+'px'; }
+function hideTip(){ tipEl.classList.remove('show'); }
+
+render();
+</script>
+</body>
+</html>
